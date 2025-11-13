@@ -1,5 +1,10 @@
 from tkinter import *
 import wikipedia
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.pagesizes import A4
 
 window=Tk()
 window.geometry('300x300')
@@ -14,6 +19,37 @@ def Search():
     result= wikipedia.page(my_input.get())
     
     text_area.insert(0.0,result.content)
+
+    pdf_adi = "rapor.pdf"
+    doc = SimpleDocTemplate(pdf_adi, pagesize=A4)
+    styles = getSampleStyleSheet()
+    styleN = styles['Normal']
+
+        # Türkçe font ekle
+    pdfmetrics.registerFont(TTFont('Arial', 'arial.ttf'))  # Bilgisayarınızda arial.ttf olmalı
+    styleN.fontName = 'Arial'
+    styleN.fontSize = 14
+
+        # PDF içerik listesi
+    story = []
+
+        # Başlık ekle
+    story.append(Paragraph(f"<b>{result.title}</b>", styleN))
+    story.append(Spacer(1, 12))  # Başlıktan sonra boşluk
+
+        # Paragrafları ekle
+    paragraphs = result.content.split("\n")
+    for paragraph in paragraphs:
+            if paragraph.strip():
+                story.append(Paragraph(paragraph.strip(), styleN))
+                story.append(Spacer(1, 10))
+
+        # PDF'i oluştur
+    doc.build(story)
+
+
+
+
 
 my_label_frame= LabelFrame(window,text='Search arama')#label frame açıyoruz
 my_label_frame.pack(padx=20,pady=20)#label frame açtık
